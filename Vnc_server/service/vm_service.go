@@ -2,6 +2,7 @@ package service
 
 import (
 	"Social_Gin/config"
+	"Social_Gin/docker"
 	"Social_Gin/model/response"
 	model "Social_Gin/model/vnc"
 	"github.com/gin-gonic/gin"
@@ -93,4 +94,30 @@ func GetVmHostAndUrl(ctx *gin.Context) {
 		response.OkWithDetailed(resultList, "查询成功", ctx)
 		return
 	}
+}
+
+// CreateVmInfo 创建Docker的虚拟机环境
+func CreateVmInfo(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) {
+	if strings.EqualFold(dockerVmInfo.ContainerName, "") ||
+		strings.EqualFold(dockerVmInfo.ContainerImage, "") ||
+		strings.EqualFold(dockerVmInfo.VncPort, "") ||
+		strings.EqualFold(dockerVmInfo.WeBasePort, "") ||
+		strings.EqualFold(dockerVmInfo.FrontPort, "") ||
+		strings.EqualFold(dockerVmInfo.ChannelPort, "") ||
+		strings.EqualFold(dockerVmInfo.SshPort, "") {
+
+		response.FailWithMessage("参数无效", ctx)
+		return
+	}
+	if err := docker.CreateVmContainer(dockerVmInfo, ctx); err == nil {
+		response.OkWithMessage("创建容器成功", ctx)
+		return
+	}
+	response.FailWithMessage("创建容器失败", ctx)
+	return
+
+}
+
+func GetDockerVmList(ctx *gin.Context) {
+	docker.GetDockerContainerList(ctx)
 }

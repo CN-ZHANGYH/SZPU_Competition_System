@@ -52,6 +52,12 @@ const routes = [
         name: 'profile',
         meta: {title: "个人信息"},
         component: () => import("@/views/profile/Index.vue"),
+      },
+      {
+        path: 'docker',
+        name: 'docker',
+        meta: {title: "容器管理"},
+        component: () => import("@/views/docker/Index.vue"),
       }
     ]
   },

@@ -1,0 +1,258 @@
+{
+	"info": {
+		"_postman_id": "d5e10e91-03f5-4291-83ff-b60e1647b820",
+		"name": "VNC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "14421032"
+	},
+	"item": [
+		{
+			"name": "用户注册",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"zhouyu\",\r\n    \"password\": \"123456\",\r\n    \"email\": \"2756864799@qq.com\",\r\n    \"phone\": \"13544910041\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8888/user/register"
+			},
+			"response": []
+		},
+		{
+			"name": "用户登录",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"zhouyu\",\r\n    \"password\": \"123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8888/user/login"
+			},
+			"response": []
+		},
+		{
+			"name": "添加虚拟机信息",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"模块一\",\r\n    \"host\": \"fallingcreams.top\",\r\n    \"password\": \"123321Vvv#\",\r\n    \"port\": \"6801\",\r\n    \"url\": \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8888/vm/addVm"
+			},
+			"response": []
+		},
+		{
+			"name": "查询虚拟机信息",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/vm/getVm?name=模块一",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"vm",
+						"getVm"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "模块一"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询所有虚拟机",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8888/vm/getVmList"
+			},
+			"response": []
+		},
+		{
+			"name": "添加试题信息",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"省赛\",\r\n    \"type\": \"省赛\",\r\n    \"vmList\": \"[922931231,231312312,2312323]\",\r\n    \"content\": \"sadas dasdasdadsadsadadaas\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8888/content/add"
+			},
+			"response": []
+		},
+		{
+			"name": "查询试题",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/content/get?name=DDCMS容器化部署",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"content",
+						"get"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "DDCMS容器化部署"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询主机和URL",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "查询所有试题信息",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "获取所有的试题标签",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8888/content/getLabel"
+			},
+			"response": []
+		},
+		{
+			"name": "创建docker虚拟机",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ContainerName\": \"zyh\",\r\n    \"ContainerImage\": \"blockchain/fisco-compute:v5.0\",\r\n    \"VncPort\": \"6081\",\r\n    \"WeBasePort\": \"50001\",\r\n    \"FrontPort\": \"50002\",\r\n    \"ChannelPort\": \"20220\",\r\n    \"SshPort\": \"2221\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8888/docker/createVm"
+			},
+			"response": []
+		},
+		{
+			"name": "查询所有的容器列表",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    15a57da6c582e36337a199c6999ba45de9c2cc12cac3b28ca69145ddaedb5a02 \r\n    [/szpt_vm-zyh] \r\n    blockchain/fisco-compute:v5.0 \r\n    sha256: 1bd5ceeac9fb6fc43814b93dad6cc6d6a6a0be2dc2fb660c0d1703bc694cdf05 \r\n    /start.sh --wait \r\n    1701763064 \r\n    [\r\n        {20201 0 tcp} \r\n        {\r\n            0.0.0.0 22 2221 tcp\r\n        } {\r\n            0.0.0.0 5000 50001 tcp\r\n        } {\r\n            0.0.0.0 5002 50002 tcp\r\n        } {\r\n            0.0.0.0 6080 6081 tcp\r\n        } {\r\n            0.0.0.0 20200 20220 tcp\r\n        }\r\n    ] 0 0 map[] running Up 10 minutes {default\r\n    } 0xc0000ae168 []\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8888/docker/getContainerList"
+			},
+			"response": []
+		},
+		{
+			"name": "获取Docker详细信息",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8888/docker/info"
+			},
+			"response": []
+		},
+		{
+			"name": "删除容器",
+			"request": {
+				"method": "DELETE",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "启动容器",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8888/docker/start?containerId",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"docker",
+						"start"
+					],
+					"query": [
+						{
+							"key": "containerId",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "关闭虚拟机",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

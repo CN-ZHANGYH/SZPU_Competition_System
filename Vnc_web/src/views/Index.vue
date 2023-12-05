@@ -116,9 +116,21 @@ const adminOptions = reactive([
     icon: renderIcon(Terminal)
   },
   {
-    label: "虚拟机管理",
-    key: "manager",
-    icon: renderIcon(DesktopOutline)
+    label: "环境配置",
+    key: "env",
+    icon: renderIcon(DesktopOutline),
+    children: [
+      {
+        label: "虚拟机管理",
+        key: "manager",
+        icon: renderIcon(Build)
+      },
+      {
+        label: "容器管理",
+        key: "docker",
+        icon: renderIcon(EyeSharp)
+      },
+    ]
   },
   {
     label: "试题管理",
@@ -209,6 +221,9 @@ function handleUpdateValue(key, item) {
   }
   if (key == "account") {
     router.push("/profile")
+  }
+  if (key == "docker") {
+    router.push("/docker")
   }
 }
 
