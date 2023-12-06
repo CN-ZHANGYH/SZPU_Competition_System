@@ -1,41 +1,44 @@
 <template>
   <div style="display: flex;justify-content: space-between;margin-top: 5px;">
-    <n-card  style="height: 845px;width: 550px;margin-left: 10px;border-radius: 20px;overflow-y: scroll"  hoverable>
+    <n-card id="cardLeft"  style="height: 100%;width: auto;margin-left: 10px;border-radius: 20px;margin-right: 20px;"  hoverable>
     <!-- 题目组件 -->
       <n-layout has-sider>
         <n-layout-sider
             bordered
-            show-trigger
-            collapse-mode="width"
-            :collapsed-width="10"
-            :width="450"
+            show-trigger="bar"
+            collapse-mode="transform"
+            :collapsed-width="0"
+            width="480"
             :native-scrollbar="false"
-            style="max-height: 800px"
+            :show-collapsed-content="false"
+            style="max-height: 850px;"
         >
           <ContentIndex @myEvent="getVmList"></ContentIndex>
         </n-layout-sider>
-        <n-layout style="max-height: 800px" />
+        <n-layout style="max-height: 800px;margin-right: 20px" />
       </n-layout>
 
     </n-card>
-    <div>
-      <n-card  style="width: 100%;border-radius: 20px;height: 60px" hoverable>
-        <div style="display: flex;justify-content: space-between;margin-top: -10px">
-          <!-- <n-dynamic-tags v-model:value="tags" :render-tag="renderTag" size="large" /> -->
-          <n-select v-model:value="value" :options="vmListOptions" style="width: 400px;" placeholder="请选择题目配套的环境" @update:value="handleUpdateValueVmUrl"/>
-          <div style="display:flex;justify-content: space-between;">
-            <n-select placeholder="请选择自定义" :options="vmOptions" style="width: 200px;margin-right: 5px" @update:value="handleUpdateValue" ></n-select>
-            <n-button type="success" @click="changeFISCO" size="small" strong style="margin-right: 5px">FISCO官网</n-button>
-            <n-button type="info" @click="changeWEBASE" size="small" strong style="margin-right: 5px">WEBASE官网</n-button>
-            <n-button type="error" @click="changeSolidity" size="small" strong style="margin-right: 5px">Solidity官网</n-button>
-            <n-button type="warning" @click="showModal = true" size="small" strong style="margin-right: 5px">自定义</n-button>
+    <div id="cardRight" style="width: 100%;">
+      <n-card style="border-radius: 20px" hoverable>
+        <n-card  style="width: 100%;border-radius: 20px;height: 60px" hoverable>
+          <div style="display: flex;justify-content: space-between;margin-top: -10px">
+            <!-- <n-dynamic-tags v-model:value="tags" :render-tag="renderTag" size="large" /> -->
+            <n-select :options="vmListOptions" style="width: 400px;" placeholder="请选择题目配套的环境" @update:value="handleUpdateValueVmUrl"/>
+            <div style="display:flex;justify-content: space-between;">
+              <n-select placeholder="请选择自定义" :options="vmOptions" style="width: 200px;margin-right: 5px" @update:value="handleUpdateValue" ></n-select>
+              <n-button type="success" @click="changeFISCO" size="small" strong style="margin-right: 5px">FISCO官网</n-button>
+              <n-button type="info" @click="changeWEBASE" size="small" strong style="margin-right: 5px">WEBASE官网</n-button>
+              <n-button type="error" @click="changeSolidity" size="small" strong style="margin-right: 5px">Solidity官网</n-button>
+              <n-button type="warning" @click="showModal = true" size="small" strong style="margin-right: 50px">自定义</n-button>
+            </div>
           </div>
-        </div>
+        </n-card>
+        <!-- 虚拟机组件 -->
+        <n-spin :show="show">
+          <VmComponent style="width: 100%" :vmUrl="vmUrl"></VmComponent>
+        </n-spin>
       </n-card>
-      <!-- 虚拟机组件 -->
-      <n-spin :show="show">
-        <VmComponent :vmUrl="vmUrl"></VmComponent>
-      </n-spin>
     </div>
     <n-modal v-model:show="showModal">
       <n-card
@@ -67,9 +70,7 @@ const vmUrl = ref("")
 const newVmValue = ref("")
 const showModal = ref(false)
 const props = defineProps(['vmUrl'])
-const vmListOptions = ref([
-
-])
+const vmListOptions = ref([])
 
 
 function getVmList(arr) {
@@ -140,7 +141,7 @@ const changeWEBASE = () => {
 const changeSolidity = () => {
   show.value = true
   // vmUrl.value = "https://www.osgeo.cn/solidity/"
-  vmUrl.value = "http://fallingcreams.top:6081/vnc.html"
+  vmUrl.value = "https://wtf.academy/solidity-start/"
   setTimeout(() => {
     show.value = false
   },1000)
@@ -168,6 +169,12 @@ const handleUpdateValue = (value, option) => {
   vmUrl.value = value
 }
 
+var cardLeft = document.getElementById("cardLeft");
+var cardRight = document.getElementById("cardRight");
+
+// cardLeft.addEventListener("mousedown",() => {
+//
+// });
 
 </script>
 
@@ -178,5 +185,8 @@ const handleUpdateValue = (value, option) => {
   height: 768px;
   border-radius: 15px;
   margin-top: 15px;
+}
+#cardRight{
+  flex: 1;
 }
 </style>

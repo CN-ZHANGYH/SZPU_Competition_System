@@ -1,6 +1,6 @@
 <template>
   <div style="display: flex;justify-content: center;">
-      <n-card title="添加试题" style="width: 1000px;margin-top: 100px;border-radius: 20px" hoverable>
+      <n-card title="添加试题" style="width: 1000px;margin-top: 100px;border-radius: 20px;" hoverable>
         <div style="display: flex;justify-content: center;margin-left: 200px">
           <n-row >
             <n-col :span="12">
@@ -40,7 +40,7 @@
             <n-select placeholder="请选择试题类型" :options="typeoptions" v-model:value="markForm.type"></n-select>
           </n-form-item>
           <n-form-item label="题目" required>
-            <v-md-editor v-model="markdownContent" @save="saveMd"  style="width: 800px;height:600px;"></v-md-editor>
+            <v-md-editor v-model="markdownContent" @save="saveMd"  height="400px"></v-md-editor>
           </n-form-item>
         </n-form>
         <div>

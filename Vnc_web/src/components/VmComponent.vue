@@ -15,7 +15,7 @@ defineProps({
 
 <style scoped>
 .vnc-class {
-  width: 1360px;
+  width: 100%;
   height: 900px;
 }
 </style>

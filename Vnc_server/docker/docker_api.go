@@ -21,7 +21,7 @@ var DOCKER_CLI *client.Client
 
 func InitDockerClient() {
 
-	remoteDockerURL := "tcp://127.0.0.1:2375"
+	remoteDockerURL := "tcp://192.168.3.152:2375"
 
 	cli, err := client.NewClientWithOpts(
 		client.WithHost(remoteDockerURL),

@@ -8,18 +8,18 @@
       </n-breadcrumb>
       <div style="display: flex;justify-content: center">
         <n-select :options="contentOptions" v-model:value="searchValue" style="width: 250px" placeholder="请选择试题内容"></n-select>
-        <span><n-button type="info" @click="changeContentInfo">切换</n-button></span>
+        <span><n-button type="info" @click="changeContentInfo" style="margin-right: 5px">切换</n-button></span>
       </div>
     </div>
     <div>
       <n-tabs type="line" animated>
         <n-tab-pane name="oasis" tab="试题">
           <v-md-preview v-if="text != ''" :text="text"></v-md-preview>
-          <n-result status="success" title="试题板块" description="可以切换试题进行作答" v-if="text == ''" style="margin-top: 50px">
+          <n-result status="success" title="试题板块" description="可以切换试题进行作答" v-if="text == ''" style="margin-top: 50px;height: 850px">
           </n-result>
         </n-tab-pane>
-        <n-tab-pane name="the beatles" tab="笔记">
-          <v-md-editor v-model="note" @save="saveMd"  style="width: 800px;height:600px;"></v-md-editor>
+        <n-tab-pane name="the beatles" tab="笔记" style="height: 850px">
+          <v-md-editor  v-model="note" @save="saveMd" height="800px"></v-md-editor>
         </n-tab-pane>
       </n-tabs>
 
@@ -51,7 +51,7 @@ function changeContentInfo(){
 
     text.value = res.data.Content
     vmList.value = JSON.parse(res.data.VmList)
-    
+
     vmListOptions.value = []
     for (let index = 0; index < vmList.value.length; index++) {
       const vm_url = vmList.value[index];
@@ -79,3 +79,7 @@ function saveMd(text,html){
   localStorage.setItem("note",JSON.stringify(text))
 }
 </script>
+
+
+<style>
+</style>
