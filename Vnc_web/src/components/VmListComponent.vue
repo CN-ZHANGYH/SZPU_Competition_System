@@ -1,10 +1,12 @@
 <template>
-  <n-data-table
-      :bordered="false"
-      :columns="columns"
-      :data="createData"
-      style="margin-top: 20px;margin-left: 5px;"
-  />
+  <n-card title="虚拟机环境信息" style="border-radius: 20px;margin-left: 10px;margin-top: 20px" hoverable>
+    <n-data-table
+        :bordered="false"
+        :columns="columns"
+        :data="createData"
+        style="margin-top: 20px;margin-left: 5px;"
+    />
+  </n-card>
 </template>
 
 

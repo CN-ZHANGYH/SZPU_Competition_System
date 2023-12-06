@@ -53,3 +53,13 @@ func SelectDockerImagesLabel(ctx *gin.Context) {
 func SelectDockerNetworkLabel(ctx *gin.Context) {
 	docker.SelectDockerNetworkLabel(ctx)
 }
+
+func SearchDockerImage(ctx *gin.Context) {
+	imageName := ctx.Query("name")
+	docker.SearchDockerImage(imageName, ctx)
+}
+
+func PullDockerImage(ctx *gin.Context) {
+	imageName := ctx.Query("name")
+	docker.PullDockerImage(imageName, ctx)
+}

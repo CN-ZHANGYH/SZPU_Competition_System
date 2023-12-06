@@ -2,7 +2,6 @@
   <n-card style="height: 70px">
     <div style="display: flex;justify-content: space-between;">
       <span style="display: flex;flex-direction: column;font-size: 20px;font-family: 'Californian FB';font-weight: bold">VNC虚拟机管理</span>
-      <n-button style="display: flex;flex-direction: column" type="error">添加虚拟机</n-button>
     </div>
   </n-card>
 

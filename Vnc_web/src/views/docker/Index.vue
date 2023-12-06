@@ -1,24 +1,64 @@
 <script setup>
 import {computed, h, reactive, ref, toRefs} from "vue";
-import {NButton, NTag} from "naive-ui";
+import {NAvatar, NButton, NIcon, NTag} from "naive-ui";
 import {
   createDockerContainer,
   getContainerList,
-  getDockerInfo,
-  removeDockerContainer, searchContainer, selectDockerImagesLabel,
+  getDockerInfo, pullDockerImageByName,
+  removeDockerContainer, searchContainer, searchDockerImagesList, selectDockerImagesLabel,
   startDockerContainer,
   stopDockerContainer
 } from "@/api/docker";
-import {CheckmarkCircle} from "@vicons/ionicons5";
-
+import {CheckmarkCircle,Navigate,RocketSharp,LogoDocker} from "@vicons/ionicons5";
+import {formatTime} from "@/utils/formatDate"
 const createColumns = reactive([
     {
       title: "镜像ID",
-      key: "Id"
+      key: "Id",
+      render(row) {
+        return h(
+            NTag,
+            {
+              style: {
+                with: "15px",
+                marginRight: "6px",
+                marginTop: "10px"
+              },
+              type: "success",
+              bordered: false,
+              round: true
+            },
+            {
+              icon: () => h(NIcon,{component: Navigate}),
+              default: () => row.Id
+            },
+
+        );
+      }
     },
     {
       title: "镜像名称",
-      key: "Image"
+      key: "Image",
+      render(row) {
+        return h(
+            NTag,
+            {
+              style: {
+                with: "500px",
+                marginRight: "6px",
+                marginTop: "10px"
+              },
+              type: "info",
+              bordered: false,
+              round: true
+            },
+            {
+              icon: () => h(NIcon,{component: RocketSharp}),
+              default: () => row.Image
+            },
+
+        );
+      }
     },
     {
       title: "容器名称",
@@ -28,23 +68,53 @@ const createColumns = reactive([
       title: "端口",
       key: "Ports",
       render(row) {
-        const tags = row.Ports.map((tagKey) => {
-          return h(
-              NTag,
-              {
-                style: {
-                  marginRight: "6px",
-                  marginTop: "10px"
+        const maxTagsPerRow = 3;  // 每行最多显示的标签数量
+        const tags = [];
+        for (let i = 0; i < row.Ports.length; i += maxTagsPerRow) {
+          const slicedPorts = row.Ports.slice(i, i + maxTagsPerRow);
+          const tagElements = slicedPorts.map((tagKey) => {
+            return h(
+                NTag,
+                {
+                  style: {
+                    marginRight: "6px",
+                    marginTop: "10px"
+                  },
+                  type: "info",
                 },
-                type: "info",
-                bordered: false
-              },
-              {
-                default: () => tagKey.PublicPort != undefined ? tagKey.PrivatePort + "->" + tagKey.PublicPort : tagKey.PrivatePort
-              }
-          );
-        });
+                {
+                  default: () =>
+                      tagKey.PublicPort != undefined
+                          ? tagKey.PrivatePort + "->" + tagKey.PublicPort
+                          : tagKey.PrivatePort
+                }
+            );
+          });
+          tags.push(h("div", {}, tagElements));  // 将每行的标签放入一个div中
+        }
         return tags;
+      }
+    },
+    {
+      title: "状态",
+      key: "Status",
+      render(row) {
+        return h(
+            NTag,
+            {
+              style: {
+                with: "15px",
+                marginRight: "6px",
+                marginTop: "10px"
+              },
+              type: row.Status == "running" ? "success" : "error",
+              bordered: false,
+            },
+            {
+              default: () => row.Status
+            },
+
+        );
       }
     },
     {
@@ -185,6 +255,55 @@ const restartPolicyOptions = reactive([
   }
 ])
 
+const imageKeyWord = ref("")
+
+const searchImageListData = ref([])
+const searchImageListColumns =  reactive([
+  {
+    title: "操作",
+    key: "action",
+    width: 100,
+    render(row) {
+      return h(
+          NButton,
+          {
+            type: "success",
+            bordered: false,
+            strong: true,
+            secondary: true,
+            onClick: () => pullDockerImage(row)
+          },
+          {
+            default: () => "拉取"
+          },
+      );
+    }
+  },
+  {
+    title: "镜像名称",
+    key: "Name",
+    render(row) {
+      return h(
+          NTag,
+          {
+            type: "info",
+            bordered: false,
+            round: true
+          },
+          {
+            icon: () => h(NIcon,{component: RocketSharp}),
+            default: () => row.Name
+          },
+
+      );
+    }
+  },
+  {
+    title: "镜像描述",
+    key: "Desc",
+    width: 200,
+  }
+])
 
 const addItem = () => {
   Port_List.value.push({
@@ -226,7 +345,24 @@ function removeVolume(index) {
   Volume_List.value.splice(index -1, 1);
 }
 
+
+function searchDockerImage(){
+  if (imageKeyWord.value == "") {
+    window.$message.error("请输入镜像名称")
+    return
+  }
+  searchDockerImagesList({name: imageKeyWord.value}).then(res => {
+    if (res.code == 0) {
+      searchImageListData.value = res.data
+      window.$message.success(res.msg)
+    }else {
+      window.$message.error(res.msg)
+
+    }
+  })
+}
 function submit(){
+  var date = new Date();
   for (let i = 0; i < Port_List.value.length; i++) {
     if (Port_List.value[i].port == "") {
       window.$message.error("请填写端口")
@@ -256,12 +392,37 @@ function submit(){
       window.$message.success(res.msg)
       getList()
       active.value = false
+      window.$notification.create({
+        title: `创建${form.value.ContainerName}容器成功`,
+        description: "容器正在创建中,请稍等片刻",
+        content:
+            `
+            当前的容器名称： ${form.value.ContainerName}
+            当前的容器镜像： ${form.value.ContainerImage}
+            当前的容器端口： ${form.value.Container_Port_List}
+            当前的主机端口： ${form.value.Host_Port_List}
+            `,
+        meta: formatTime(date),
+        avatar: () => h(NIcon, {
+          component: LogoDocker
+        }),
+      })
     }else {
       window.$message.error(res.msg)
       active.value = false
     }
   })
 
+}
+
+function pullDockerImage(row) {
+  pullDockerImageByName({name:row.Name}).then(res => {
+    if (res.code == 0){
+      window.$message.success(res.msg)
+    }else {
+      window.$message.error(res.msg)
+    }
+  })
 }
 </script>
 
@@ -353,6 +514,19 @@ function submit(){
           />
         </div>
       </div>
+      <n-divider />
+      <div class="search-container">
+        <n-input v-model:value="imageKeyWord" placeholder="请输入镜像名称" size="large" status="success"/>
+        <n-button type="info" size="large" @click="searchDockerImage" >搜索</n-button>
+      </div>
+        <n-data-table
+            :columns="searchImageListColumns"
+            :data="searchImageListData"
+            :max-height="260"
+            :min-height="260"
+            :bordered="false"
+            :scroll-x="600"
+        />
     </n-card>
   </div>
   <div style="justify-content: flex-end;width: 100%">
@@ -371,61 +545,77 @@ function submit(){
       <n-pagination :v-model:page="currentPage" :page-count="totalPages"  @change="handlePageChange"  style="margin-left: 80%;margin-top: 50px"/>
     </n-card>
   </div>
-  <n-drawer v-model:show="active" :width="800"    placement="left">
-    <n-drawer-content title="创建环境虚拟机">
-      <n-form
-          ref="formRef"
-          :model="form"
-          size="large"
-          label-placement="left"
-      >
-        <n-grid :cols="24" :x-gap="24">
-          <n-form-item-gi :span="24" label="容器名称" path="inputValue">
-            <n-input v-model:value="form.ContainerName" placeholder="请输入容器名称" />
-          </n-form-item-gi>
-          <n-form-item-gi :span="24" label="容器镜像" path="textareaValue">
+  <n-drawer v-model:show="active" :width="800" placement="left">
+    <n-drawer-content title="创建容器">
+      <n-card title="初始化容器信息">
+        <n-steps current="3" style="margin-bottom: 30px;margin-top: 20px">
+          <n-step
+              title="选择镜像"
+              description="选择已有的Docker镜像"
+          />
+          <n-step
+              title="暴露端口"
+              description="暴露当前的服务端口"
+          />
+          <n-step
+              title="配置数据卷"
+              description="配置容器的数据持久化服务"
+          />
+        </n-steps>
+        <n-form
+            ref="formRef"
+            :model="form"
+            size="large"
+            label-placement="left"
+        >
+          <n-grid :cols="24" :x-gap="24">
+            <n-form-item-gi :span="24" label="容器名称" path="inputValue">
+              <n-input v-model:value="form.ContainerName" placeholder="请输入容器名称" />
+            </n-form-item-gi>
+            <n-form-item-gi :span="24" label="容器镜像" path="textareaValue">
               <n-select :options="imagesOptions" v-model:value="form.ContainerImage" placeholder="请选择容器镜像"></n-select>
-          </n-form-item-gi>
-          <n-form-item-gi :span="24"  label="重启策略">
-            <n-select :options="restartPolicyOptions" v-model:value="form.RestartPolicy" placeholder="请选择重启策略"> </n-select>
-          </n-form-item-gi>
-          <n-form-item-gi
-              :span="12"
-              v-for="(item, index) in Port_List"
-              :key="index"
-              :label="`${item.label}端口`"
-          >
-            <n-input v-model:value="Port_List[index].port" clearable  :placeholder="`请输入当前的${item.label}端口`"/>
-          </n-form-item-gi>
-          <n-form-item-gi :span="24" style="display: flex;justify-content: center">
-            <n-button style="margin-right: 12px" @click="removeItem(index)" type="error" :bordered="false">
-              删除
-            </n-button>
-            <n-button attr-type="button" @click="addItem" type="success" :bordered="false">
-              增加
-            </n-button>
-          </n-form-item-gi>
-          <n-form-item-gi
-              :span="12"
-              v-for="(item, index) in Volume_List"
-              :key="index"
-              :label="`${item.label}路径`"
-          >
-            <n-input v-model:value="Volume_List[index].path" clearable  :placeholder="`请输入当前的${item.label}端口`"/>
-          </n-form-item-gi>
-          <n-form-item-gi :span="24" style="display: flex;justify-content: center">
-            <n-button style="margin-right: 12px" @click="removeVolume(index)" type="error" :bordered="false">
-              删除
-            </n-button>
-            <n-button attr-type="button" @click="addVolume" type="success" :bordered="false">
-              增加
-            </n-button>
-          </n-form-item-gi>
-          <n-form-item-gi :span="24"  path="textareaValue">
-            <n-button type="success" @click="submit">提交</n-button>
-          </n-form-item-gi>
-        </n-grid>
-      </n-form>
+            </n-form-item-gi>
+            <n-form-item-gi :span="24"  label="重启策略">
+              <n-select :options="restartPolicyOptions" v-model:value="form.RestartPolicy" placeholder="请选择重启策略"> </n-select>
+            </n-form-item-gi>
+            <n-form-item-gi
+                :span="12"
+                v-for="(item, index) in Port_List"
+                :key="index"
+                :label="`${item.label}端口`"
+            >
+              <n-input v-model:value="Port_List[index].port" clearable  :placeholder="`请输入当前的${item.label}端口`"/>
+            </n-form-item-gi>
+            <n-form-item-gi :span="24" style="display: flex;justify-content: center">
+              <n-button style="margin-right: 12px" @click="removeItem(index)" type="error" :bordered="false">
+                删除
+              </n-button>
+              <n-button attr-type="button" @click="addItem" type="success" :bordered="false">
+                增加
+              </n-button>
+            </n-form-item-gi>
+            <n-form-item-gi
+                :span="12"
+                v-for="(item, index) in Volume_List"
+                :key="index"
+                :label="`${item.label}路径`"
+            >
+              <n-input v-model:value="Volume_List[index].path" clearable  :placeholder="`请输入当前的${item.label}端口`"/>
+            </n-form-item-gi>
+            <n-form-item-gi :span="24" style="display: flex;justify-content: center">
+              <n-button style="margin-right: 12px" @click="removeVolume(index)" type="error" :bordered="false">
+                删除
+              </n-button>
+              <n-button attr-type="button" @click="addVolume" type="success" :bordered="false">
+                增加
+              </n-button>
+            </n-form-item-gi>
+            <n-form-item-gi :span="24"  path="textareaValue">
+              <n-button type="info" @click="submit" style="width: 100%;margin-top: 20px">提交</n-button>
+            </n-form-item-gi>
+          </n-grid>
+        </n-form>
+      </n-card>
     </n-drawer-content>
   </n-drawer>
 </div>

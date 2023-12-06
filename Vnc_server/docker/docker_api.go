@@ -21,7 +21,7 @@ var DOCKER_CLI *client.Client
 
 func InitDockerClient() {
 
-	remoteDockerURL := "tcp://192.168.3.152:2375"
+	remoteDockerURL := "tcp://127.0.0.1:2375"
 
 	cli, err := client.NewClientWithOpts(
 		client.WithHost(remoteDockerURL),
@@ -265,5 +265,34 @@ func SelectDockerNetworkLabel(ctx *gin.Context) {
 		resultMapList = append(resultMapList, resultMap)
 	}
 	response.OkWithDetailed(resultMapList, "查询成功", ctx)
+	return
+}
+
+func SearchDockerImage(imageName string, ctx *gin.Context) {
+	searchResults, err := DOCKER_CLI.ImageSearch(context.Background(), imageName, types.ImageSearchOptions{})
+	if err != nil {
+		response.FailWithMessage("没有该镜像", ctx)
+		return
+	}
+	fmt.Println(searchResults)
+	var resultMapList []map[string]interface{}
+	for _, image := range searchResults {
+		var resultMap = make(map[string]interface{})
+		resultMap["Name"] = image.Name
+		resultMap["Desc"] = image.Description
+		resultMapList = append(resultMapList, resultMap)
+	}
+	response.OkWithDetailed(resultMapList, "查询成功", ctx)
+	return
+}
+
+func PullDockerImage(imageName string, ctx *gin.Context) {
+	imagePull, err := DOCKER_CLI.ImagePull(context.Background(), imageName, types.ImagePullOptions{})
+	if err != nil {
+		response.FailWithMessage("镜像拉取失败", ctx)
+		return
+	}
+	defer imagePull.Close()
+	response.OkWithMessage("镜像拉取成功", ctx)
 	return
 }

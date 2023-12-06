@@ -17,6 +17,8 @@ func CollectVDockerRoute(r *gin.Engine) *gin.Engine {
 		userGroup.GET("/searchContainer", controller.SelectDockerContainer)
 		userGroup.GET("/selectDockerImagesLabel", controller.SelectDockerImagesLabel)
 		userGroup.GET("/selectDockerNetworkLabel", controller.SelectDockerNetworkLabel)
+		userGroup.GET("/searchDockerImage", controller.SearchDockerImage)
+		userGroup.GET("/pullDockerImage", controller.PullDockerImage)
 	}
 	return r
 }

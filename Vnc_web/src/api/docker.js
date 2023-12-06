@@ -64,3 +64,21 @@ export function selectDockerImagesLabel(){
         method: "get",
     })
 }
+
+
+export function searchDockerImagesList(query){
+    return request({
+        url: "/docker/searchDockerImage",
+        method: "get",
+        params: query
+    })
+}
+
+
+export function pullDockerImageByName(query){
+    return request({
+        url: "/docker/pullDockerImage",
+        method: "get",
+        params: query
+    })
+}
