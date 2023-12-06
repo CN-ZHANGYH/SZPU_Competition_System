@@ -54,6 +54,14 @@ getUserInfo({username: username.value}).then(res => {
             :src="image"
             />
         </n-form-item>
+      <n-switch>
+        <template #checked>
+          自然赠予你，树冠 微风 肩头的暴雨
+        </template>
+        <template #unchecked>
+          片刻后生成，平衡 忠诚 不息的身体
+        </template>
+      </n-switch>
         <n-divider />
         <n-form-item label="账号">
             <n-input v-model:value="form.Username" disabled/>

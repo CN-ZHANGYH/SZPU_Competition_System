@@ -1,11 +1,12 @@
 <template>
-  <n-data-table
-      :columns="columns"
-      :data="data"
-      :pagination="pagination"
-      :bordered="false"
-  />
-
+  <n-card title="试题管理">
+    <n-data-table
+        :columns="columns"
+        :data="data"
+        :pagination="pagination"
+        :bordered="false"
+    />
+  </n-card>
   <n-drawer v-model:show="active" :width="900" :placement="placement">
     <n-drawer-content title="赛题详细内容">
       <n-card hoverable style="border-radius: 100px;">

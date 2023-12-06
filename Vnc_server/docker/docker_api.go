@@ -8,6 +8,7 @@ import (
 	"github.com/docker/distribution/context"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ var DOCKER_CLI *client.Client
 
 func InitDockerClient() {
 
-	remoteDockerURL := "tcp://fallingcreams.top:2375"
+	remoteDockerURL := "tcp://192.168.3.152:2375"
 
 	cli, err := client.NewClientWithOpts(
 		client.WithHost(remoteDockerURL),
@@ -34,6 +35,7 @@ func InitDockerClient() {
 
 // CreateVmContainer 创建Docker的虚拟机
 func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error {
+	fmt.Println(dockerVmInfo)
 	// 获取本地已启动的Docker容器，如果要查看全部容器，可以配置types.ContainerListOptions{}参数
 	//containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	//if err != nil {
@@ -49,42 +51,34 @@ func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error
 	}
 
 	// 配置端口暴露
+	mounts := []mount.Mount{}
+	if !strings.EqualFold(dockerVmInfo.Host_Volume_List[0], "") {
+		for index, source_path := range dockerVmInfo.Host_Volume_List {
+			mounts = append(mounts, mount.Mount{
+				Type:     mount.TypeBind,
+				Source:   source_path,                               // 宿主机上要挂载的文件夹路径
+				Target:   dockerVmInfo.Container_Volume_List[index], // 容器内挂载的路径
+				ReadOnly: false,                                     // 是否只读
+			})
+		}
+	}
+
 	portBindings := nat.PortMap{}
-	portBindings["6080/tcp"] = []nat.PortBinding{
-		{
-			HostIP:   "0.0.0.0",
-			HostPort: dockerVmInfo.VncPort,
-		},
-	}
-	portBindings["5000/tcp"] = []nat.PortBinding{
-		{
-			HostIP:   "0.0.0.0",
-			HostPort: dockerVmInfo.WeBasePort,
-		},
-	}
-	portBindings["5002/tcp"] = []nat.PortBinding{
-		{
-			HostIP:   "0.0.0.0",
-			HostPort: dockerVmInfo.FrontPort,
-		},
-	}
-	portBindings["20200/tcp"] = []nat.PortBinding{
-		{
-			HostIP:   "0.0.0.0",
-			HostPort: dockerVmInfo.ChannelPort,
-		},
-	}
-	portBindings["22/tcp"] = []nat.PortBinding{
-		{
-			HostIP:   "0.0.0.0",
-			HostPort: dockerVmInfo.SshPort,
-		},
+
+	for index, container_port := range dockerVmInfo.Container_Port_List {
+		new_container_port := nat.Port(fmt.Sprintf("%s/tcp", container_port))
+		portBindings[new_container_port] = []nat.PortBinding{
+			{
+				HostIP:   "0.0.0.0",
+				HostPort: dockerVmInfo.Host_Port_List[index],
+			},
+		}
 	}
 
 	// 配置容器自动重启
 	hostConfig := &container.HostConfig{
 		RestartPolicy: container.RestartPolicy{
-			Name: "always", // 设置重启策略为"always"，容器将总是自动重启
+			Name: dockerVmInfo.RestartPolicy, // 设置重启策略为"always"，容器将总是自动重启
 			// 可选的重启策略：
 			// - "no"：无重启策略
 			// - "always"：容器总是自动重启
@@ -94,17 +88,11 @@ func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error
 
 		PortBindings: portBindings,
 
-		//Mounts: []mount.Mount{
-		//	{
-		//		Type:     mount.TypeBind,
-		//		Source:   "./",                    // 宿主机上要挂载的文件夹路径
-		//		Target:   "/usr/share/nginx/html", // 容器内挂载的路径
-		//		ReadOnly: false,                   // 是否只读
-		//	},
-		//},
+		Mounts: mounts,
 	}
+
 	// 设置容器名称
-	name := "szpt_vm-" + dockerVmInfo.ContainerName
+	name := "SZPT_VM_" + dockerVmInfo.ContainerName
 	// 创建并启动容器
 	resp, err := DOCKER_CLI.ContainerCreate(context.Background(), containerConfig, hostConfig, nil, nil, name)
 	if err != nil {
@@ -122,7 +110,11 @@ func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error
 
 // GetDockerContainerList  查看所有的Docker容器
 func GetDockerContainerList(ctx *gin.Context) {
-	containerList, err := DOCKER_CLI.ContainerList(context.Background(), types.ContainerListOptions{})
+	containerList, err := DOCKER_CLI.ContainerList(context.Background(), types.ContainerListOptions{
+		All:    true,
+		Size:   true,
+		Latest: true,
+	})
 	if err != nil {
 		response.FailWithMessage("查询失败", ctx)
 		return
@@ -180,63 +172,98 @@ func GetDockerInfo(ctx *gin.Context) {
 
 // RemoveDockerContainer 删除容器
 func RemoveDockerContainer(containerId string, ctx *gin.Context) {
-	containerList, _ := DOCKER_CLI.ContainerList(context.Background(), types.ContainerListOptions{})
-	for _, containerInfo := range containerList {
-		if strings.EqualFold(containerInfo.ID[:12], containerId) {
-			err := DOCKER_CLI.ContainerRemove(context.Background(), containerInfo.ID, types.ContainerRemoveOptions{
-				RemoveVolumes: true,
-				Force:         true,
-			})
-			if err != nil {
-				response.FailWithMessage("删除失败", ctx)
-				return
-			}
-			response.OkWithMessage("删除成功", ctx)
-			return
-		}
-		response.FailWithMessage("没有该容器", ctx)
+	err := DOCKER_CLI.ContainerRemove(context.Background(), containerId, types.ContainerRemoveOptions{
+		RemoveVolumes: true,
+		Force:         true,
+	})
+	if err != nil {
+		response.FailWithMessage("删除失败", ctx)
 		return
 	}
+	response.OkWithMessage("删除成功", ctx)
+	return
 }
 
 func StartDockerContainer(containerId string, ctx *gin.Context) {
-	dockerContainer, success := SelectDockerContainer(containerId)
-	if success {
-		err := DOCKER_CLI.ContainerStart(context.Background(), dockerContainer, types.ContainerStartOptions{})
-		if err == nil {
-			response.FailWithMessage("当前容器不存在", ctx)
-			return
-		}
+	err := DOCKER_CLI.ContainerStart(context.Background(), containerId, types.ContainerStartOptions{})
+	if err == nil {
+		response.OkWithMessage("开启容器成功", ctx)
+		return
 	}
 	response.FailWithMessage("当前容器不存在", ctx)
 	return
 }
 
 func StopDockerContainer(containerId string, ctx *gin.Context) {
-	dockerContainer, success := SelectDockerContainer(containerId)
-	if success {
-		err := DOCKER_CLI.ContainerStop(context.Background(), dockerContainer, container.StopOptions{})
-		if err == nil {
-			response.FailWithMessage("当前容器不存在", ctx)
-			return
-		}
+	timeout := -1
+	err := DOCKER_CLI.ContainerStop(context.Background(), containerId, container.StopOptions{
+		Timeout: &timeout,
+	})
+	if err == nil {
+		response.OkWithMessage("停止容器成功", ctx)
+		return
 	}
 	response.FailWithMessage("当前容器不存在", ctx)
 	return
 }
 
-func SelectDockerContainer(containerId string) (string, bool) {
-	containerList, _ := DOCKER_CLI.ContainerList(context.Background(), types.ContainerListOptions{})
+func SelectDockerContainer(containerId string, ctx *gin.Context) {
+	containerList, _ := DOCKER_CLI.ContainerList(context.Background(), types.ContainerListOptions{
+		All: true,
+	})
 	for _, containerInfo := range containerList {
 		if strings.EqualFold(containerInfo.ID[:12], containerId) {
-			err := DOCKER_CLI.ContainerRemove(context.Background(), containerInfo.ID, types.ContainerRemoveOptions{
-				RemoveVolumes: true,
-				Force:         true,
-			})
-			if err == nil {
-				return containerInfo.ID, true
-			}
+			var containerInfoList []vo.ContainerInfo
+			var container_info vo.ContainerInfo
+			container_info.Id = containerInfo.ID[:12]
+			container_info.Names = containerInfo.Names[0][1:]
+			container_info.Image = containerInfo.Image
+			container_info.Status = containerInfo.State
+			container_info.Ports = containerInfo.Ports
+
+			containerInfoList = append(containerInfoList, container_info)
+			response.OkWithDetailed(containerInfoList, "查询成功", ctx)
+			return
 		}
 	}
-	return "", false
+	response.FailWithMessage("查询失败", ctx)
+	return
+}
+
+func SelectDockerImagesLabel(ctx *gin.Context) {
+	imagesList, _ := DOCKER_CLI.ImageList(context.Background(), types.ImageListOptions{
+		All: true,
+	})
+	if len(imagesList) < 0 {
+		response.FailWithMessage("当前没有镜像", ctx)
+		return
+	}
+	var resultMapList []map[string]interface{}
+	for _, image := range imagesList {
+
+		var resultMap = make(map[string]interface{})
+		resultMap["label"] = image.RepoTags[0]
+		resultMap["value"] = image.RepoTags[0]
+		resultMapList = append(resultMapList, resultMap)
+	}
+	response.OkWithDetailed(resultMapList, "查询成功", ctx)
+	return
+}
+
+func SelectDockerNetworkLabel(ctx *gin.Context) {
+	networkList, err := DOCKER_CLI.NetworkList(context.Background(), types.NetworkListOptions{})
+	if err != nil {
+		response.FailWithMessage("当前还未创建网络", ctx)
+		return
+	}
+	var resultMapList []map[string]interface{}
+	for _, network := range networkList {
+
+		var resultMap = make(map[string]interface{})
+		resultMap["label"] = network.Name
+		resultMap["value"] = network.Name
+		resultMapList = append(resultMapList, resultMap)
+	}
+	response.OkWithDetailed(resultMapList, "查询成功", ctx)
+	return
 }

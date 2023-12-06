@@ -40,3 +40,16 @@ func StopDockerContainer(ctx *gin.Context) {
 	containerId := ctx.Query("containerId")
 	docker.StopDockerContainer(containerId, ctx)
 }
+
+func SelectDockerContainer(ctx *gin.Context) {
+	containerId := ctx.Query("containerId")
+	docker.SelectDockerContainer(containerId, ctx)
+}
+
+func SelectDockerImagesLabel(ctx *gin.Context) {
+	docker.SelectDockerImagesLabel(ctx)
+}
+
+func SelectDockerNetworkLabel(ctx *gin.Context) {
+	docker.SelectDockerNetworkLabel(ctx)
+}

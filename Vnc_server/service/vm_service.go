@@ -99,13 +99,7 @@ func GetVmHostAndUrl(ctx *gin.Context) {
 // CreateVmInfo 创建Docker的虚拟机环境
 func CreateVmInfo(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) {
 	if strings.EqualFold(dockerVmInfo.ContainerName, "") ||
-		strings.EqualFold(dockerVmInfo.ContainerImage, "") ||
-		strings.EqualFold(dockerVmInfo.VncPort, "") ||
-		strings.EqualFold(dockerVmInfo.WeBasePort, "") ||
-		strings.EqualFold(dockerVmInfo.FrontPort, "") ||
-		strings.EqualFold(dockerVmInfo.ChannelPort, "") ||
-		strings.EqualFold(dockerVmInfo.SshPort, "") {
-
+		strings.EqualFold(dockerVmInfo.ContainerImage, "") {
 		response.FailWithMessage("参数无效", ctx)
 		return
 	}
