@@ -30,3 +30,8 @@ func GetContentList(ctx *gin.Context) {
 func GetContentCount(ctx *gin.Context) {
 	service.GetContentCount(ctx)
 }
+
+func RemoveContentInfo(ctx *gin.Context) {
+	name := ctx.Query("name")
+	service.RemoveContentInfo(name, ctx)
+}

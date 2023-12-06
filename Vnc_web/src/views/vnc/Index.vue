@@ -2,7 +2,21 @@
   <div style="display: flex;justify-content: space-between;margin-top: 5px;">
     <n-card  style="height: 845px;width: 550px;margin-left: 10px;border-radius: 20px;overflow-y: scroll"  hoverable>
     <!-- 题目组件 -->
-      <ContentIndex @myEvent="getVmList"></ContentIndex>
+      <n-layout has-sider>
+        <n-layout-sider
+            bordered
+            show-trigger
+            collapse-mode="width"
+            :collapsed-width="10"
+            :width="450"
+            :native-scrollbar="false"
+            style="max-height: 800px"
+        >
+          <ContentIndex @myEvent="getVmList"></ContentIndex>
+        </n-layout-sider>
+        <n-layout style="max-height: 800px" />
+      </n-layout>
+
     </n-card>
     <div>
       <n-card  style="width: 100%;border-radius: 20px;height: 60px" hoverable>

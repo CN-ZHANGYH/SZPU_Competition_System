@@ -81,3 +81,18 @@ func GetContentCount(ctx *gin.Context) {
 		return
 	}
 }
+
+func RemoveContentInfo(name string, ctx *gin.Context) {
+	if strings.EqualFold(name, "") {
+		response.FailWithMessage("参数无效", ctx)
+		return
+	}
+	var selectContentInfo model.ContentInfo
+	if config.DB.Where("name = ?", name).First(&selectContentInfo).RowsAffected > 0 {
+		config.DB.Delete(&selectContentInfo)
+		response.OkWithMessage("删除成功", ctx)
+		return
+	}
+	response.FailWithMessage("删除失败", ctx)
+	return
+}

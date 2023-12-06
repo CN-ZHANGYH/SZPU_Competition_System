@@ -22,7 +22,7 @@
 
 import {h, onMounted, ref} from "vue";
 import {NButton, NTag} from "naive-ui";
-import {getExamList} from "@/api/markdown";
+import {getExamList, removeContentInfo} from "@/api/markdown";
 const text = ref(``)
 const contentInfo = ref({})
 
@@ -76,7 +76,23 @@ const columns = [
     }
   },
   {
-    title: "操作",
+    title: "查看",
+    key: "action",
+    render(row) {
+      return h(
+          NButton,
+          {
+            type: "info",
+            strong: true,
+            size: "small",
+            onClick: () => viewContent(row)
+          },
+          { default: () => "查看" }
+      );
+    }
+  },
+  {
+    title: "删除",
     key: "action",
     render(row) {
       return h(
@@ -85,9 +101,9 @@ const columns = [
             type: "error",
             strong: true,
             size: "small",
-            onClick: () => viewContent(row)
+            onClick: () => deleteContent(row)
           },
-          { default: () => "查看" }
+          { default: () => "删除" }
       );
     }
   }
@@ -112,6 +128,16 @@ function viewContent(row) {
   contentInfo.value = row
 }
 
+function deleteContent(row){
+  removeContentInfo({name: row.Name}).then(res => {
+    if (res.code == 0) {
+      getExamAllList()
+      window.$message.success(res.msg)
+    }else  {
+      window.$message.error(res.msg)
+    }
+  })
+}
 onMounted(() => {
   getExamAllList()
 })

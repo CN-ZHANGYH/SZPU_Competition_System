@@ -30,5 +30,13 @@ export function getExamInfo(query) {
         params: query
     })
 }
+export function removeContentInfo(query) {
+    return request({
+        url: "/content/delete",
+        method: "delete",
+        params: query
+    })
+}
+
 
 

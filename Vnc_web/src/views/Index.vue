@@ -96,11 +96,6 @@ const userOptions = [
             icon: renderIcon(Card)
           },
           {
-            label: "登录",
-            key: "login",
-            icon: renderIcon(LogIn)
-          },
-          {
             label: "退出",
             key: "logout",
             icon: renderIcon(LogOut)
