@@ -111,7 +111,7 @@ const createColumns = reactive([
               bordered: false,
             },
             {
-              default: () => row.Status
+              default: () => row.Status.toUpperCase()
             },
 
         );

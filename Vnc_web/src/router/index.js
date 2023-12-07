@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import IndexView from '../views/Index.vue'
+import {GetUser} from "@/utils/getUser";
 
 const routes = [
   {path:'/', redirect: '/login'},

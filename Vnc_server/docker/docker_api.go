@@ -21,7 +21,7 @@ var DOCKER_CLI *client.Client
 
 func InitDockerClient() {
 
-	remoteDockerURL := "tcp://192.168.3.152:2375"
+	remoteDockerURL := "tcp://localhost:2375"
 
 	cli, err := client.NewClientWithOpts(
 		client.WithHost(remoteDockerURL),
@@ -35,7 +35,6 @@ func InitDockerClient() {
 
 // CreateVmContainer 创建Docker的虚拟机
 func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error {
-	fmt.Println(dockerVmInfo)
 	// 获取本地已启动的Docker容器，如果要查看全部容器，可以配置types.ContainerListOptions{}参数
 	//containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	//if err != nil {
@@ -43,7 +42,7 @@ func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error
 	//}
 	//for _, container := range containers {
 	//	fmt.Printf("容器ID：%s，容器名称：%s,容器状态：%s\n", container.ID[:3], container.Image, container.State)
-	//}
+	//}S
 
 	// 配置要启动的容器
 	containerConfig := &container.Config{
@@ -274,7 +273,6 @@ func SearchDockerImage(imageName string, ctx *gin.Context) {
 		response.FailWithMessage("没有该镜像", ctx)
 		return
 	}
-	fmt.Println(searchResults)
 	var resultMapList []map[string]interface{}
 	for _, image := range searchResults {
 		var resultMap = make(map[string]interface{})

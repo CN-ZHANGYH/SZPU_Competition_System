@@ -225,7 +225,6 @@ function handleUpdateValue(key, item) {
 
 onMounted(() => {
   const role = JSON.parse(localStorage.getItem("user")).Role
-  console.log(role)
   if (role == 1){
     menuOptions.value = userOptions
   }else {
