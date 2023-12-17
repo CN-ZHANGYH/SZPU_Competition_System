@@ -4,6 +4,7 @@ import (
 	"Social_Gin/model/response"
 	model "Social_Gin/model/vnc"
 	"Social_Gin/model/vo"
+	"encoding/json"
 	"fmt"
 	"github.com/docker/distribution/context"
 	"github.com/docker/docker/api/types"
@@ -14,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shirou/gopsutil/mem"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -21,20 +23,40 @@ var DOCKER_CLI *client.Client
 
 func InitDockerClient() {
 
-	remoteDockerURL := "tcp://localhost:2375"
+	remoteDockerURL := "tcp://106.52.203.212:2376"
 
 	cli, err := client.NewClientWithOpts(
 		client.WithHost(remoteDockerURL),
 		// client.WithVersion("1.41"),
-		client.WithAPIVersionNegotiation())
+		client.WithAPIVersionNegotiation(),
+		client.WithTLSClientConfig("cert/ca.pem", "cert/cert.pem", "cert/key.pem"))
+
 	DOCKER_CLI = cli
 	if err != nil {
 		log.Fatal("连接Docker失败")
 	}
+
+	ctx := context.Background()
+	dockerInfo, err := cli.Info(ctx)
+	if err != nil {
+		fmt.Println("Failed to get Docker info:", err)
+		os.Exit(1)
+	}
+
+	// 将Info信息转换为JSON格式并打印到控制台
+	infoJSON, err := json.MarshalIndent(dockerInfo, "", "    ")
+	if err != nil {
+		fmt.Println("Failed to convert to JSON:", err)
+		os.Exit(1)
+	}
+
+	fmt.Println("Docker Info:")
+	fmt.Println(string(infoJSON))
 }
 
 // CreateVmContainer 创建Docker的虚拟机
 func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error {
+	fmt.Println(dockerVmInfo)
 	// 获取本地已启动的Docker容器，如果要查看全部容器，可以配置types.ContainerListOptions{}参数
 	//containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
 	//if err != nil {
@@ -42,7 +64,7 @@ func CreateVmContainer(dockerVmInfo *model.DockerVmInfo, ctx *gin.Context) error
 	//}
 	//for _, container := range containers {
 	//	fmt.Printf("容器ID：%s，容器名称：%s,容器状态：%s\n", container.ID[:3], container.Image, container.State)
-	//}S
+	//}
 
 	// 配置要启动的容器
 	containerConfig := &container.Config{
@@ -273,6 +295,7 @@ func SearchDockerImage(imageName string, ctx *gin.Context) {
 		response.FailWithMessage("没有该镜像", ctx)
 		return
 	}
+	fmt.Println(searchResults)
 	var resultMapList []map[string]interface{}
 	for _, image := range searchResults {
 		var resultMap = make(map[string]interface{})
