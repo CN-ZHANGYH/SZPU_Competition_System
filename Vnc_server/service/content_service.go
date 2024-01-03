@@ -1,9 +1,9 @@
 package service
 
 import (
-	"Social_Gin/config"
-	"Social_Gin/model/response"
-	model "Social_Gin/model/vnc"
+	"Vnc_Server/config"
+	"Vnc_Server/model/response"
+	model "Vnc_Server/model/vnc"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"strings"

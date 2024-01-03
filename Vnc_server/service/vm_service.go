@@ -1,10 +1,10 @@
 package service
 
 import (
-	"Social_Gin/config"
-	"Social_Gin/docker"
-	"Social_Gin/model/response"
-	model "Social_Gin/model/vnc"
+	"Vnc_Server/config"
+	"Vnc_Server/docker"
+	"Vnc_Server/model/response"
+	model "Vnc_Server/model/vnc"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"

@@ -1,10 +1,10 @@
 package service
 
 import (
-	"Social_Gin/config"
-	"Social_Gin/model/response"
-	model "Social_Gin/model/vnc"
-	"Social_Gin/model/vo"
+	"Vnc_Server/config"
+	"Vnc_Server/model/response"
+	model "Vnc_Server/model/vnc"
+	"Vnc_Server/model/vo"
 	"crypto/sha256"
 	"encoding/hex"
 	"github.com/gin-gonic/gin"

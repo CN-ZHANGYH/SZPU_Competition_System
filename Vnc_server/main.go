@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Social_Gin/config"
-	"Social_Gin/docker"
-	"Social_Gin/router"
+	"Vnc_Server/config"
+	"Vnc_Server/docker"
+	"Vnc_Server/router"
 	"github.com/gin-gonic/gin"
 )
 
