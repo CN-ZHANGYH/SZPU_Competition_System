@@ -1,7 +1,7 @@
 package config
 
 import (
-	model "Social_Gin/model/vnc"
+	model "Vnc_Server/model/vnc"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -14,8 +14,8 @@ var DB *gorm.DB
 
 func InitMySQL() {
 	username := "root"           //账号
-	password := "zhangyuhao0417" //密码
-	host := "1.12.77.252"        //数据库地址，可以是Ip或者域名
+	password := "Wsczkmucdis251" //密码
+	host := "fallingcreams.top"  //数据库地址，可以是Ip或者域名
 	port := 3306                 //数据库端口
 	Dbname := "vnc_traning"      //数据库名
 	timeout := "10s"             //连接超时，10秒

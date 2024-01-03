@@ -1,7 +1,7 @@
 package router
 
 import (
-	"Social_Gin/controller"
+	"Vnc_Server/controller"
 	"github.com/gin-gonic/gin"
 )
 

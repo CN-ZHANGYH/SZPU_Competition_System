@@ -1,9 +1,9 @@
 package docker
 
 import (
-	"Social_Gin/model/response"
-	model "Social_Gin/model/vnc"
-	"Social_Gin/model/vo"
+	"Vnc_Server/model/response"
+	model "Vnc_Server/model/vnc"
+	"Vnc_Server/model/vo"
 	"encoding/json"
 	"fmt"
 	"github.com/docker/distribution/context"
@@ -23,7 +23,7 @@ var DOCKER_CLI *client.Client
 
 func InitDockerClient() {
 
-	remoteDockerURL := "tcp://106.52.203.212:2376"
+	remoteDockerURL := "tcp://fallingcreams.top:2376"
 
 	cli, err := client.NewClientWithOpts(
 		client.WithHost(remoteDockerURL),

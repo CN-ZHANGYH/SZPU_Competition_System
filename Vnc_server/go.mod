@@ -1,4 +1,4 @@
-module Social_Gin
+module Vnc_Server
 
 go 1.20
 

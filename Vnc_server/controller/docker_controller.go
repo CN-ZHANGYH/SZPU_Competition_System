@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"Social_Gin/docker"
-	"Social_Gin/model/response"
-	model "Social_Gin/model/vnc"
-	"Social_Gin/service"
+	"Vnc_Server/docker"
+	"Vnc_Server/model/response"
+	model "Vnc_Server/model/vnc"
+	"Vnc_Server/service"
 	"github.com/gin-gonic/gin"
 )
 
